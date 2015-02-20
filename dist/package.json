@@ -1,0 +1,21 @@
+{
+  "name": "wdt",
+  "description": "Whatever Dance Toolbox",
+  "version": "1.9.1",
+  "main": "approot/index.html",
+  "window": {
+    "title": "WDT",
+    "toolbar": true,
+    "frame": true,
+    "fullscreen": false,
+    "kiosk": false,
+    "position": "center",
+    "width": 1024,
+    "height": 600,
+    "min_width": 800,
+    "min_height": 600
+  },
+  "dependencies": {
+    "gstreamer-superficial": "git://github.com/dasantonym/node-gstreamer-superficial.git"
+  }
+}

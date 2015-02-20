@@ -1,3 +1,7 @@
-root/node_modules/node-gstreamer-superficial
-root/lib/angular.min.js
-app.nw
+bower_components/
+node_modules/
+release
+cache
+.DS_Store
+.idea/
+*.log

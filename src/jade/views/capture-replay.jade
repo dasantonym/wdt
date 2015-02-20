@@ -1,0 +1,9 @@
+#video-container
+    #canvas-container
+        canvas#canvas(width='320', height='240')
+    #OSD(ng-switch='mode')
+        div(ng-switch-when='menu')
+        div(ng-switch-when='countdown')
+            | Start Recording in {{toGo}}s...
+        div(ng-switch-when='record')
+            | Recording ({{toGo+s | number:0 }}s to go)

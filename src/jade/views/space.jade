@@ -1,0 +1,20 @@
+#video-container
+    #canvas-container
+        canvas#canvas(width='320', height='240')
+    #OSD
+        div
+            div(ng-switch='exercise.type')
+                div(ng-switch-when='StandAtAngle')
+                    | Stand at an Angle of {{exercise.angle}}&deg;
+                    br
+                    | {{delta | number:1 }}
+                div(ng-switch-when='MoveTo')
+                    | Move to {{exercise.x}}, {{exercise.y}}
+                    br
+                    | {{delta | number:1 }}
+                div(ng-switch-when='Inertia')
+                    | Observe Inertia
+                div(ng-switch-when='Cage')
+                    | Stay in the Cage
+        div(style='opacity:{{OSDOpacity}}')
+            | Threshold: {{threshold | number:0 }}
