@@ -76,7 +76,7 @@
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
 
-            var gstreamer = require("node-gstreamer-superficial");
+            var gstreamer = require("gstreamer-superficial");
 
             var width = 320;
             var height = 240;
@@ -86,7 +86,7 @@
 
             var pipeline = new gstreamer.Pipeline(
                 //"videotestsrc pattern=snow"
-                    "filesrc location=/home/dan/archive/video/aida/dance.avi ! decodebin"
+                    "v4l2src"
                     + " ! videoconvert ! video/x-raw, format=GRAY8, width=320, height=240"
                     + " ! motion name=motion weight=0.000001 scale=2 shift=-10 ! videoconvert "
                     + " ! flip h=true ! blur ! threshold name=threshold threshold=" + $scope.threshold

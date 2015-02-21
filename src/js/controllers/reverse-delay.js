@@ -53,15 +53,12 @@
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
 
-            var gstreamer = require("node-gstreamer-superficial");
+            var gstreamer = require("gstreamer-superficial");
 
             var width = 320;
             var height = 240;
 
-            var pipeline = new gstreamer.Pipeline(
-                //"videotestsrc pattern=snow"
-                    "filesrc location=/home/dan/archive/video/aida/dance.avi ! decodebin"
-                    + " ! videoconvert ! video/x-raw, format=RGBA, width=320, height=240 ! appsink name=sink");
+            var pipeline = new gstreamer.Pipeline("v4l2src ! videoconvert ! video/x-raw, format=RGBA, width=320, height=240 ! appsink name=sink");
 
             var appsink = pipeline.findChild("sink");
 

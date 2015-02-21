@@ -7,7 +7,7 @@
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
 
-            var gstreamer = require("node-gstreamer-superficial");
+            var gstreamer = require("gstreamer-superficial");
 
             var mode = "menu";
             var frames = [];
@@ -62,7 +62,7 @@
                 slowmotion: { x: .6, y: .525, w: .1, h: .1 }
             }
 
-            var def = "filesrc location=/home/dan/archive/video/aida/dance.avi ! decodebin ! tee name=t0 "
+            var def = "v4l2src ! tee name=t0 "
                 + " t0. ! queue max-size-buffers=1 ! videoconvert ! motion weight=0.3";
 
             for (var name in triggers) {

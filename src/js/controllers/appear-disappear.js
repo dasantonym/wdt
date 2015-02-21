@@ -12,10 +12,7 @@
             var width = 320;
             var height = 240;
 
-            var pipeline = new gstreamer.Pipeline(
-                //"videotestsrc pattern=snow"
-                    "filesrc location=/home/dan/archive/video/aida/dance.avi ! decodebin"
-                    + " ! avg ! videoconvert ! video/x-raw, format=RGBA, width=320, height=240 ! appsink name=sink");
+            var pipeline = new gstreamer.Pipeline("v4l2src ! avg ! videoconvert ! video/x-raw, format=RGBA, width=320, height=240 ! appsink name=sink");
 
             var appsink = pipeline.findChild("sink");
 

@@ -58,7 +58,7 @@ module.exports = function (grunt) {
         nodewebkit: {
             server: {
                 options: {
-                    platforms: ['linux64'],
+                    platforms: ['linux32'],
                     buildDir: './release/',
                     version: '0.8.6',
                     macPlist: {
