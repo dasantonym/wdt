@@ -17,6 +17,9 @@
 
             $routeProvider.when('/', {templateUrl: viewPath + 'main.html', controller: 'Main'});
             $routeProvider.when('/appear-disappear', {templateUrl: viewPath + 'appear-disappear.html', controller: 'AppearDisappear'});
+            $routeProvider.when('/capture-replay', {templateUrl: viewPath + 'capture-replay.html', controller: 'CaptureReplay'});
+            $routeProvider.when('/reverse-delay', {templateUrl: viewPath + 'reverse-delay.html', controller: 'ReverseDelay'});
+            $routeProvider.when('/space/:spaceModule', {templateUrl: viewPath + 'space.html', controller: 'Space'});
 
         }]);
 }());
