@@ -163,6 +163,12 @@
 //				console.log("CAPS",caps);
             });
 
+            $scope.$on('$routeChangeStart', function(next, current) {
+                if (next !== current) {
+                    pipeline.stop();
+                }
+            });
+
             pipeline.play();
 
         }]);

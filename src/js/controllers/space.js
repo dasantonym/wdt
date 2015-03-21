@@ -2,15 +2,15 @@
     'use strict';
     angular.module(
         'wdt.controllers.space', [])
-        .controller('Space', ['$scope', function ($scope) {
+        .controller('Space', ['$scope', '$routeParams', function ($scope, $routeParams) {
 
-            switch (window.location.hash) {
-                case "#inertia":
+            switch ($routeParams.spaceModule) {
+                case "inertia":
                     $scope.exercises = [
                         { type: "Inertia" }
                     ];
                     break;
-                case "#cage":
+                case "cage":
                     $scope.exercises = [
                         { type: "Cage", left: .2, top: .2, right: .8, bottom: 1.1 },
                         { type: "Cage", left: .35, top: .15, right: .6, bottom: 1.1 },
@@ -262,6 +262,12 @@
 
             }, function (caps) {
 //				console.log("CAPS",caps);
+            });
+
+            $scope.$on('$routeChangeStart', function(next, current) {
+                if (next !== current) {
+                    pipeline.stop();
+                }
             });
 
             pipeline.play();
