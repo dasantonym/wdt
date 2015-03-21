@@ -4,21 +4,23 @@
         'wdt.controllers.appear-disappear', [])
         .controller('AppearDisappear', ['$scope', function ($scope) {
 
+            var cv = require('opencv');
+
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
-
-            var gstreamer = require("gstreamer-superficial");
+            var videoContainer = document.getElementById("video-container");
+            var canvasContainer = document.getElementById("canvas-container");
+            var OSD = document.getElementById("OSD");
 
             var width = 320;
             var height = 240;
 
-            var pipeline = new gstreamer.Pipeline("v4l2src ! avg ! videoconvert ! video/x-raw, format=RGBA, width=320, height=240 ! appsink name=sink");
+            var cam = new cv.VideoCapture(0);
+            var wdt = new cv.WDT();
 
-            var appsink = pipeline.findChild("sink");
+            cam.setWidth(width);
+            cam.setHeight(height);
 
-            var videoContainer = document.getElementById("video-container");
-            var canvasContainer = document.getElementById("canvas-container");
-            var OSD = document.getElementById("OSD");
             window.onresize = function (e) {
                 var ww = window.innerWidth;
                 var wh = window.innerHeight;
@@ -33,35 +35,45 @@
 
                 OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
                 OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
-            }
-            window.onresize();
+            };
 
             document.onkeydown = function (e) {
                 switch (e.keyCode) {
                     case 81: // Q
-                        pipeline.stop();
+                        cam.close();
+                        wdt = undefined;
+                        cam = undefined;
                         window.location = "index.html";
                         break;
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }
                 $scope.$apply();
-            }
+            };
 
-            appsink.pull(function (frame) {
-                var image = context.createImageData(width, height);
-                image.data.set(frame);
+            var readFrame = function () {
+                cam.read(function(err, mat){
+                    wdt.appearDisappear(mat, 0.01);
+                    var image = context.createImageData(mat.width(), mat.height());
+                    var width = mat.width();
+                    var height = mat.height();
+                    for (var y = 0; y < height; y += 1) {
+                        for (var x = 0; x < width; x += 1) {
+                            var pixel = mat.pixel(y, x);
+                            var pos = (width * y + x) * 4;
+                            image.data[pos] = pixel[2];
+                            image.data[pos + 1] = pixel[1];
+                            image.data[pos + 2] = pixel[0];
+                            image.data[pos + 3] = 255;
+                        }
+                    }
+                    context.putImageData(image, 0, 0);
+                    window.setTimeout(readFrame, 10);
+                });
+            };
 
-                context.putImageData(image, 0, 0);
-
-
-                $scope.$apply();
-
-            }, function (caps) {
-                //				console.log("CAPS",caps);
-            });
-
-            pipeline.play();
+            window.onresize();
+            readFrame();
 
         }]);
 })();
