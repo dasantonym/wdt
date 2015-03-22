@@ -56,7 +56,7 @@ module.exports = function (grunt) {
             }
         },
         nodewebkit: {
-            server: {
+            osx64: {
                 options: {
                     platforms: ['osx64'],
                     buildDir: './release/',
@@ -64,6 +64,22 @@ module.exports = function (grunt) {
                     macPlist: {
                         'NSHumanReadableCopyright': "2015 BADco. / Turing / Koch"
                     }
+                },
+                src: ['./dist/**/*']
+            },
+            linux64: {
+                options: {
+                    platforms: ['linux64'],
+                    buildDir: './release/',
+                    version: '0.12.0'
+                },
+                src: ['./dist/**/*']
+            },
+            win64: {
+                options: {
+                    platforms: ['win64'],
+                    buildDir: './release/',
+                    version: '0.12.0'
                 },
                 src: ['./dist/**/*']
             }

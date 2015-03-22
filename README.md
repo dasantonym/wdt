@@ -25,13 +25,13 @@ cd dist
 npm install
 ```
 
-To build the app for your local machine run:
+To build the app for your local machine (substitute PLATFORM for either linux64, osx64 or win64) run:
 
 ```
 cd dist/node_modules/opencv
-node-pre-gyp rebuild --runtime=node-webkit --target=0.12.0
+node-pre-gyp rebuild --runtime=node-webkit --target=0.12.0 --arch=x64
 cd ../../..
-grunt nodewebkit
+grunt nodewebkit:PLATFORM
 ```
 
 To regenerate all HTML/JS/CSS files run ``grunt``.
