@@ -1,6 +1,6 @@
 {
   "name": "wdt",
-  "version": "1.9.1",
+  "version": "2.0.0",
   "description": "Whatever Dance Toolbox",
   "main": "Gruntfile.js",
   "scripts": {

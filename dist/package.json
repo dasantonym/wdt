@@ -1,7 +1,7 @@
 {
   "name": "wdt",
   "description": "Whatever Dance Toolbox",
-  "version": "1.9.1",
+  "version": "2.0.0",
   "main": "approot/index.html",
   "window": {
     "title": "WDT",
@@ -16,7 +16,6 @@
     "min_height": 600
   },
   "dependencies": {
-    "gstreamer-superficial": "git://github.com/dasantonym/node-gstreamer-superficial.git",
     "opencv": "git://github.com/dasantonym/node-opencv.git"
   }
 }
