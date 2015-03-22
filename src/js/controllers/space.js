@@ -76,14 +76,22 @@
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
 
-            var gstreamer = require("gstreamer-superficial");
-
             var width = 320;
             var height = 240;
 
             $scope.inert = { x: width / 2, y: height / 2 };
             $scope.vel = { x: 0., y: 0. };
 
+            var cv = require('opencv');
+
+            var cam = new cv.VideoCapture(0);
+            var extremes = new cv.Extremes();
+            var camshift;
+
+            cam.setWidth(width);
+            cam.setHeight(height);
+
+            /*
             var pipeline = new gstreamer.Pipeline(
                 //"videotestsrc pattern=snow"
                     "v4l2src"
@@ -99,6 +107,7 @@
             var extremes = pipeline.findChild("extremes");
             var camshift = pipeline.findChild("camshift");
             var threshold = pipeline.findChild("threshold");
+            */
 
             var videoContainer = document.getElementById("video-container");
             var canvasContainer = document.getElementById("canvas-container");
@@ -117,20 +126,19 @@
 
                 OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
                 OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
-            }
-            window.onresize();
+            };
 
             document.onkeydown = function (e) {
                 switch (e.keyCode) {
                     case 38: // up
                         $scope.threshold = Math.min(255, $scope.threshold + 3);
                         $scope.showOSD();
-                        threshold.set("threshold", $scope.threshold);
+                        //threshold.set("threshold", $scope.threshold);
                         break;
                     case 40: // down
                         $scope.threshold = Math.max(0, $scope.threshold - 3);
                         $scope.showOSD();
-                        threshold.set("threshold", $scope.threshold);
+                        //threshold.set("threshold", $scope.threshold);
                         break;
                     case 39: // right
                         $scope.nextExercise();
@@ -142,135 +150,171 @@
                         motion.set("reset", true);
                         break;
                     case 81: // Q
-                        pipeline.stop();
+                        //pipeline.stop();
+                        cam.close();
+                        cam = undefined;
                         window.location = "index.html";
                         break;
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }
                 $scope.$apply();
-            }
+            };
 
-            appsink.pull(function (frame) {
-                var image = context.createImageData(width, height);
-                image.data.set(frame);
+            var count = 0;
 
-                context.putImageData(image, 0, 0);
+            var readFrame = function () {
+                cam.read(function(err, mat){
+                    mat.convertGrayscale();
+                    mat.cvtColor('CV_GRAY2BGR');
+                    var extRes = extremes.process(mat);
+                    mat = mat.threshold($scope.threshold, 255);
+                    var camshiftRes;
 
-                var extr = $scope.extremes = {
-                    left: extremes.get("left") * width,
-                    top: extremes.get("top") * height,
-                    right: extremes.get("right") * width,
-                    bottom: extremes.get("bottom") * height,
-                };
-                var c = $scope.centroid = {
-                    x: camshift.get("x") * width,
-                    y: camshift.get("y") * height,
-                    width: camshift.get("width") * width,
-                    height: camshift.get("height") * height,
-                    angle: deg2rad(camshift.get("angle"))
-                };
+                    if (camshift) {
+                        camshiftRes = camshift.track(mat);
+                    } else {
+                        camshift = new cv.TrackedObject(mat, [0, 0, 320, 240], {channel: 'value'});
+                    }
 
-                context.fillStyle = "#fff";
-                context.save();
-                context.translate(c.x, c.y);
-                context.rotate(c.angle);
-                context.fillRect(-(c.width / 2), -5, c.width, 10);
-                context.fillRect(-5, -(c.height / 2), 10, c.height);
-                context.restore();
+                    if (!camshiftRes) {
+                        if (count < 100) window.setTimeout(readFrame, 10);
+                        return;
+                    }
 
-                context.fillStyle = "rgba(0,20,120,0.5)";
-                context.fillRect(0, 0, width, height);
+                    //console.log(camshiftRes);
 
-                context.strokeStyle = "#fff";
-                context.lineWidth = 2;
-                context.strokeRect(extr.left, extr.top, extr.right - extr.left, extr.bottom - extr.top);
-
-                // inert centroid
-                var acc = .05; // TODO: make configurable
-                var brake = 1. - acc;
-                var inert = $scope.inert;
-                var vel = $scope.vel;
-                var d = { x: c.x - inert.x, y: c.y - inert.y };
-                d.x *= acc;
-                d.y *= acc;
-                vel.x *= brake;
-                vel.y *= brake;
-                vel.x += d.x;
-                vel.y += d.y;
-                inert.x += vel.x;
-                inert.y += vel.y;
-
-                $scope.inert = inert;
-                $scope.vel = vel;
-
-
-                var ex = $scope.exercise;
-                context.fillStyle = "#f00";
-                var th = 2;
-                var sz = 30;
-                context.save();
-                switch (ex.type) {
-                    case "StandAtAngle":
-                        var angle = deg2rad(ex.angle);
-                        context.translate(width / 2, height / 2);
-                        context.rotate(angle);
-                        context.fillRect(-width / 2, -2, width, 4);
-                        var delta = Math.abs(angle - c.angle);
-                        $scope.delta = delta;
-                        if (delta < deg2rad(3)) $scope.exerciseDone();
-                        break;
-
-                    case "MoveTo":
-                        var x = ex.x * width;
-                        var y = ex.y * height;
-                        context.fillRect(x - th, y - sz, th * 2, sz * 2);
-                        context.fillRect(x - sz, y - th, sz * 2, th * 2);
-
-                        var d = { x: x - c.x, y: y - c.y };
-                        var delta = Math.sqrt((d.x * d.x) + (d.y * d.y));
-                        $scope.delta = delta;
-                        if (delta < 10) $scope.exerciseDone();
-                        break;
-
-                    case "Cage":
-                        var cg = {
-                            l: ex.left * width,
-                            t: ex.top * height,
-                            r: ex.right * width,
-                            b: ex.bottom * height
+                    var image = context.createImageData(mat.width(), mat.height());
+                    var width = mat.width();
+                    var height = mat.height();
+                    for (var y = 0; y < height; y += 1) {
+                        for (var x = 0; x < width; x += 1) {
+                            var pixel = mat.pixel(y, x);
+                            var pos = (width * y + x) * 4;
+                            image.data[pos] = pixel[2];
+                            image.data[pos + 1] = pixel[1];
+                            image.data[pos + 2] = pixel[0];
+                            image.data[pos + 3] = 255;
                         }
-                        var inside = cg.l < extr.left && cg.t < extr.top && cg.r > extr.right && cg.b >= extr.bottom;
-                        $scope.insideCage = inside;
-                        context.strokeStyle = inside ? "#0f0" : "#f00";
-                        context.lineWidth = 2;
-                        context.strokeRect(cg.l, cg.t, cg.r - cg.l, cg.b - cg.t);
-                        break;
+                    }
+                    context.putImageData(image, 0, 0);
 
-                    case "Inertia":
-                        var x = $scope.inert.x;
-                        var y = $scope.inert.y;
-                        context.fillRect(x - th, y - sz, th * 2, sz * 2);
-                        context.fillRect(x - sz, y - th, sz * 2, th * 2);
-                        break;
+                    var extr = $scope.extremes = {
+                        left: extRes[0] * width,
+                        top: extRes[2] * height,
+                        right: extRes[1] * width,
+                        bottom: extRes[3] * height
+                    };
 
-                }
-                context.restore();
+                    var c = $scope.centroid = {
+                        x: camshiftRes[0],// * width,
+                        y: camshiftRes[1],// * height,
+                        width: camshiftRes[2],// * width,
+                        height: camshiftRes[3],// * height,
+                        angle: deg2rad(camshiftRes[4])
+                    };
 
+                    context.fillStyle = "#fff";
+                    context.save();
+                    context.translate(c.x, c.y);
+                    context.rotate(c.angle);
+                    context.fillRect(-(c.width / 2), -5, c.width, 10);
+                    context.fillRect(-5, -(c.height / 2), 10, c.height);
+                    context.restore();
 
-                $scope.$apply();
+                    //context.fillStyle = "rgba(0,20,120,0.5)";
+                    //context.fillRect(0, 0, width, height);
 
-            }, function (caps) {
-//				console.log("CAPS",caps);
-            });
+                    context.strokeStyle = "#f00";
+                    context.lineWidth = 2;
+                    context.strokeRect(extr.left, extr.top, extr.right - extr.left, extr.bottom - extr.top);
+
+                    // inert centroid
+                    var acc = .05; // TODO: make configurable
+                    var brake = 1. - acc;
+                    var inert = $scope.inert;
+                    var vel = $scope.vel;
+                    var d = { x: c.x - inert.x, y: c.y - inert.y };
+                    d.x *= acc;
+                    d.y *= acc;
+                    vel.x *= brake;
+                    vel.y *= brake;
+                    vel.x += d.x;
+                    vel.y += d.y;
+                    inert.x += vel.x;
+                    inert.y += vel.y;
+
+                    $scope.inert = inert;
+                    $scope.vel = vel;
+
+                    var ex = $scope.exercise;
+                    context.fillStyle = "#fff";
+                    var th = 2;
+                    var sz = 30;
+                    context.save();
+                    switch (ex.type) {
+                        case "StandAtAngle":
+                            var angle = deg2rad(ex.angle);
+                            context.translate(width / 2, height / 2);
+                            context.rotate(angle);
+                            context.fillRect(-width / 2, -2, width, 4);
+                            var delta = Math.abs(angle - c.angle);
+                            $scope.delta = delta;
+                            if (delta < deg2rad(3)) $scope.exerciseDone();
+                            break;
+
+                        case "MoveTo":
+                            var x = ex.x * width;
+                            var y = ex.y * height;
+                            context.fillRect(x - th, y - sz, th * 2, sz * 2);
+                            context.fillRect(x - sz, y - th, sz * 2, th * 2);
+
+                            var d = { x: x - c.x, y: y - c.y };
+                            var delta = Math.sqrt((d.x * d.x) + (d.y * d.y));
+                            $scope.delta = delta;
+                            if (delta < 10) $scope.exerciseDone();
+                            break;
+
+                        case "Cage":
+                            var cg = {
+                                l: ex.left * width,
+                                t: ex.top * height,
+                                r: ex.right * width,
+                                b: ex.bottom * height
+                            }
+                            var inside = cg.l < extr.left && cg.t < extr.top && cg.r > extr.right && cg.b >= extr.bottom;
+                            $scope.insideCage = inside;
+                            context.strokeStyle = inside ? "#0f0" : "#f00";
+                            context.lineWidth = 2;
+                            context.strokeRect(cg.l, cg.t, cg.r - cg.l, cg.b - cg.t);
+                            break;
+
+                        case "Inertia":
+                            var x = $scope.inert.x;
+                            var y = $scope.inert.y;
+                            context.fillRect(x - th, y - sz, th * 2, sz * 2);
+                            context.fillRect(x - sz, y - th, sz * 2, th * 2);
+                            break;
+
+                    }
+                    context.restore();
+
+                    $scope.$apply();
+
+                    window.setTimeout(readFrame, 10);
+                });
+            };
 
             $scope.$on('$routeChangeStart', function(next, current) {
                 if (next !== current) {
-                    pipeline.stop();
+                    //pipeline.stop();
+                    cam.close();
+                    cam = undefined;
                 }
             });
 
-            pipeline.play();
+            window.onresize();
+            readFrame();
 
         }]);
 })();

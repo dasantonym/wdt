@@ -16,7 +16,7 @@
             var height = 240;
 
             var cam = new cv.VideoCapture(0);
-            var wdt = new cv.WDT();
+            var average = new cv.Average();
 
             cam.setWidth(width);
             cam.setHeight(height);
@@ -41,7 +41,7 @@
                 switch (e.keyCode) {
                     case 81: // Q
                         cam.close();
-                        wdt = undefined;
+                        average = undefined;
                         cam = undefined;
                         window.location = "index.html";
                         break;
@@ -51,9 +51,13 @@
                 $scope.$apply();
             };
 
+            var count = 0;
+
             var readFrame = function () {
                 cam.read(function(err, mat){
-                    wdt.appearDisappear(mat, 0.01);
+                    average.process(mat, 0.01);
+                    //var res = wdt2.process(mat, 8, 8, 0.1, 0.0001);
+                    //console.log(res);
                     var image = context.createImageData(mat.width(), mat.height());
                     var width = mat.width();
                     var height = mat.height();
@@ -68,7 +72,8 @@
                         }
                     }
                     context.putImageData(image, 0, 0);
-                    window.setTimeout(readFrame, 10);
+                    count+=1;
+                    if (count < 100) window.setTimeout(readFrame, 10);
                 });
             };
 
