@@ -9,8 +9,8 @@
                 { name: "Inertia", href: "#/space/inertia", img: "img/inertia.png" },
                 { name: "Cage", href: "#/space/cage", img: "img/cage.png" },
 
-                { name: "Reverse and Delay", href: "#/reverse-delay", img: "img/reverse-and-delay.png" },
-                { name: "Capture and Replay", href: "#/capture-replay", img: "img/capture-and-replay.png" },
+                //{ name: "Reverse and Delay", href: "#/reverse-delay", img: "img/reverse-and-delay.png" },
+                //{ name: "Capture and Replay", href: "#/capture-replay", img: "img/capture-and-replay.png" },
                 { name: "Appear - Disappear", href: "#/appear-disappear", img: "img/appear-disappear.png" },
             ];
 
@@ -38,7 +38,7 @@
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }
-            }
+            };
 
         }]);
 })();

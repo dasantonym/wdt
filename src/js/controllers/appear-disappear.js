@@ -16,7 +16,7 @@
             var height = 240;
 
             var cam = new cv.VideoCapture(0);
-            var average = new cv.Average();
+            var average = new cv.cvAverage();
 
             cam.setWidth(width);
             cam.setHeight(height);
@@ -56,8 +56,6 @@
             var readFrame = function () {
                 cam.read(function(err, mat){
                     average.process(mat, 0.01);
-                    //var res = wdt2.process(mat, 8, 8, 0.1, 0.0001);
-                    //console.log(res);
                     var image = context.createImageData(mat.width(), mat.height());
                     var width = mat.width();
                     var height = mat.height();

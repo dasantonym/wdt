@@ -85,8 +85,11 @@
             var cv = require('opencv');
 
             var cam = new cv.VideoCapture(0);
-            var extremes = new cv.Extremes();
-            var camshift;
+            var extremes = new cv.wExtremes();
+            var motion = new cv.cvMotion();
+            var accumulate = new cv.wAccumulate();
+            var multiplys = new cv.cvMultiplyS();
+            var camshift = new cv.cvCamShift();
 
             cam.setWidth(width);
             cam.setHeight(height);
@@ -147,7 +150,7 @@
                         $scope.previousExercise();
                         break;
                     case 32: // space:
-                        motion.set("reset", true);
+                        motion.reset();
                         break;
                     case 81: // Q
                         //pipeline.stop();
@@ -161,28 +164,18 @@
                 $scope.$apply();
             };
 
-            var count = 0;
-
             var readFrame = function () {
                 cam.read(function(err, mat){
                     mat.convertGrayscale();
+                    motion.process(mat, 0.000001, 2.0, -10.0, 0);
+                    mat = mat.flip(1);
+                    mat.gaussianBlur();
+                    mat = mat.threshold($scope.threshold, 255);
                     mat.cvtColor('CV_GRAY2BGR');
                     var extRes = extremes.process(mat);
-                    mat = mat.threshold($scope.threshold, 255);
-                    var camshiftRes;
-
-                    if (camshift) {
-                        camshiftRes = camshift.track(mat);
-                    } else {
-                        camshift = new cv.TrackedObject(mat, [0, 0, 320, 240], {channel: 'value'});
-                    }
-
-                    if (!camshiftRes) {
-                        if (count < 100) window.setTimeout(readFrame, 10);
-                        return;
-                    }
-
-                    //console.log(camshiftRes);
+                    var camshiftRes = camshift.process(mat);
+                    accumulate.process(mat, 0.2, 0.8);
+                    multiplys.process(mat, 0.6, 0);
 
                     var image = context.createImageData(mat.width(), mat.height());
                     var width = mat.width();
@@ -206,24 +199,26 @@
                         bottom: extRes[3] * height
                     };
 
+                    if (!camshiftRes) {
+                        window.setTimeout(readFrame, 10);
+                        return;
+                    }
+
                     var c = $scope.centroid = {
-                        x: camshiftRes[0],// * width,
-                        y: camshiftRes[1],// * height,
-                        width: camshiftRes[2],// * width,
-                        height: camshiftRes[3],// * height,
+                        x: Math.floor(camshiftRes[0] * width),
+                        y: Math.floor(camshiftRes[1] * height),
+                        width: Math.floor(camshiftRes[2] * width),
+                        height: Math.floor(camshiftRes[3] * height),
                         angle: deg2rad(camshiftRes[4])
                     };
 
-                    context.fillStyle = "#fff";
+                    context.fillStyle = "#0f0";
                     context.save();
                     context.translate(c.x, c.y);
                     context.rotate(c.angle);
                     context.fillRect(-(c.width / 2), -5, c.width, 10);
                     context.fillRect(-5, -(c.height / 2), 10, c.height);
                     context.restore();
-
-                    //context.fillStyle = "rgba(0,20,120,0.5)";
-                    //context.fillRect(0, 0, width, height);
 
                     context.strokeStyle = "#f00";
                     context.lineWidth = 2;
@@ -307,7 +302,6 @@
 
             $scope.$on('$routeChangeStart', function(next, current) {
                 if (next !== current) {
-                    //pipeline.stop();
                     cam.close();
                     cam = undefined;
                 }
