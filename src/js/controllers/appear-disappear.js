@@ -4,18 +4,20 @@
         'wdt.controllers.appear-disappear', [])
         .controller('AppearDisappear', ['$scope', function ($scope) {
 
+            $scope.weight = 0.01;
+
             var cv = require('opencv');
 
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
             var videoContainer = document.getElementById("video-container");
             var canvasContainer = document.getElementById("canvas-container");
-            var OSD = document.getElementById("OSD");
 
             var width = 320;
             var height = 240;
 
-            var cam = new cv.VideoCapture(0);
+            var camDevice = 0;
+            var cam = new cv.VideoCapture(camDevice);
             var average = new cv.cvAverage();
 
             cam.setWidth(width);
@@ -32,13 +34,49 @@
                 var ofsy = (wh - height) / 2;
                 videoContainer.style.left = "" + (ofsx) + "px";
                 videoContainer.style.top = "" + (ofsy) + "px";
+            };
 
-                OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
-                OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
+            $scope.OSDOpacity = 0;
+            var fade;
+            $scope.showOSD = function () {
+                $scope.OSDOpacity = 1;
+                if (!fade) {
+                    fade = setInterval(function () {
+                        $scope.OSDOpacity *= .9;
+                        if ($scope.OSDOpacity < .01) {
+                            $scope.OSDOpacity = 0;
+                            clearInterval(fade);
+                            fade = undefined;
+                        }
+                        $scope.$apply();
+                    }, 66);
+                }
             };
 
             document.onkeydown = function (e) {
                 switch (e.keyCode) {
+                    case 38: // up
+                        $scope.weight = Math.min(1.0, $scope.weight + 0.005);
+                        $scope.showOSD();
+                        //threshold.set("threshold", $scope.threshold);
+                        break;
+                    case 40: // down
+                        $scope.weight = Math.max(0.005, $scope.weight - 0.005);
+                        $scope.showOSD();
+                        //threshold.set("threshold", $scope.threshold);
+                        break;
+                    case 67: // c:
+                        try {
+                            camDevice += 1;
+                            cam.close();
+                            cam = new cv.VideoCapture(camDevice);
+                        } catch (e) {
+                            camDevice = 0;
+                            cam = new cv.VideoCapture(camDevice);
+                        }
+                        cam.setWidth(width);
+                        cam.setHeight(height);
+                        break;
                     case 81: // Q
                         cam.close();
                         average = undefined;
@@ -55,7 +93,7 @@
 
             var readFrame = function () {
                 cam.read(function(err, mat){
-                    average.process(mat, 0.01);
+                    average.process(mat, $scope.weight);
                     var image = context.createImageData(mat.width(), mat.height());
                     var width = mat.width();
                     var height = mat.height();
@@ -71,7 +109,7 @@
                     }
                     context.putImageData(image, 0, 0);
                     count+=1;
-                    if (count < 100) window.setTimeout(readFrame, 10);
+                    window.setTimeout(readFrame, 10);
                 });
             };
 

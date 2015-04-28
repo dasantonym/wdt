@@ -46,7 +46,7 @@
             };
 
             $scope.exerciseDone = function () {
-                // play sound
+                snd.play();
                 $scope.nextExercise();
             }
 
@@ -82,9 +82,13 @@
             $scope.inert = { x: width / 2, y: height / 2 };
             $scope.vel = { x: 0., y: 0. };
 
+            var snd = new Audio("./snd/Robot_blip_2-Marianne_Gagnon-299056732.wav");
+
             var cv = require('opencv');
 
-            var cam = new cv.VideoCapture(0);
+            var camDevice = 0;
+
+            var cam = new cv.VideoCapture(camDevice);
             var extremes = new cv.wExtremes();
             var motion = new cv.cvMotion();
             var accumulate = new cv.wAccumulate();
@@ -114,7 +118,6 @@
 
             var videoContainer = document.getElementById("video-container");
             var canvasContainer = document.getElementById("canvas-container");
-            var OSD = document.getElementById("OSD");
             window.onresize = function (e) {
                 var ww = window.innerWidth;
                 var wh = window.innerHeight;
@@ -126,9 +129,6 @@
                 var ofsy = (wh - height) / 2;
                 videoContainer.style.left = "" + (ofsx) + "px";
                 videoContainer.style.top = "" + (ofsy) + "px";
-
-                OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
-                OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
             };
 
             document.onkeydown = function (e) {
@@ -151,6 +151,18 @@
                         break;
                     case 32: // space:
                         motion.reset();
+                        break;
+                    case 67: // c:
+                        try {
+                            camDevice += 1;
+                            cam.close();
+                            cam = new cv.VideoCapture(camDevice);
+                        } catch (e) {
+                            camDevice = 0;
+                            cam = new cv.VideoCapture(camDevice);
+                        }
+                        cam.setWidth(width);
+                        cam.setHeight(height);
                         break;
                     case 81: // Q
                         //pipeline.stop();
@@ -255,7 +267,7 @@
                             context.fillRect(-width / 2, -2, width, 4);
                             var delta = Math.abs(angle - c.angle);
                             $scope.delta = delta;
-                            if (delta < deg2rad(3)) $scope.exerciseDone();
+                            if (delta < Math.abs(deg2rad(3))) $scope.exerciseDone();
                             break;
 
                         case "MoveTo":
@@ -276,7 +288,7 @@
                                 t: ex.top * height,
                                 r: ex.right * width,
                                 b: ex.bottom * height
-                            }
+                            };
                             var inside = cg.l < extr.left && cg.t < extr.top && cg.r > extr.right && cg.b >= extr.bottom;
                             $scope.insideCage = inside;
                             context.strokeStyle = inside ? "#0f0" : "#f00";

@@ -25,6 +25,11 @@
             }
             $scope.toolRows.push(row);
 
+            $scope.externalClick = function (url) {
+                var gui = require('nw.gui');
+                gui.Shell.openExternal(url);
+            }
+
             document.onkeydown = function (e) {
                 var nr = e.keyCode - 49;
                 if (nr >= 0 && nr < $scope.tools.length) {
@@ -34,7 +39,7 @@
 
                 switch (e.keyCode) {
                     case 81: // Q
-                        global.window.nwDispatcher.requireNwGui().App.quit();
+                        //global.window.nwDispatcher.requireNwGui().App.quit();
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }

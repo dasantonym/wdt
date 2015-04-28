@@ -46,17 +46,10 @@ body {
   font-style: normal;
 
   background: #333;
-  color: white;
+  color: #eee;
   overflow: hidden;
-  margin: 50px;
+  margin: 24px;
   font-size: 18pt;
-}
-
-a {
-  color: #3465a4;
-  text-decoration: none;
-  font-weight: bold;
-  text-transform: uppercase;
 }
 
 h1, h2, h3 {
@@ -78,6 +71,12 @@ h2 {
   font-size: 26pt;
 }
 
+a {
+  color: #eee;
+  text-decoration: none;
+  font-weight: bold;
+}
+
 #video-container {
   position: absolute;
 }
@@ -86,12 +85,20 @@ h2 {
   z-index: -1;
 }
 
-#OSD {
+.osd {
   position: absolute;
-  padding: 1em;
-  text-transform: uppercase;
+  bottom: 24px;
+  margin: 0 auto 0 auto;
+  width:600px;
+  height:31px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
   font-weight: bold;
-  font-size: 24pt;
+  font-size: 28px;
+}
+#osd-settings {
+  top: 24px;
+  font-size:21px;
 }
 
 #footer {
@@ -102,6 +109,14 @@ h2 {
   position: absolute;
   bottom: 1em;
   width: 100%;
+  a {
+    color: gray;
+    text-decoration: none;
+    font-weight: normal;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 .tool {
