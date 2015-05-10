@@ -6,7 +6,7 @@
 
             $scope.weight = 0.01;
 
-            var cv = require('opencv');
+            var cv = require('wdt-native');
 
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");

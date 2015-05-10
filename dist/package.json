@@ -4,10 +4,10 @@
   "version": "2.0.0",
   "main": "approot/index.html",
   "window": {
-    "title": "WDT",
+    "title": "BADco. Whatever Dance Toolbox",
     "toolbar": false,
     "frame": true,
-    "fullscreen": true,
+    "fullscreen": false,
     "kiosk": false,
     "position": "center",
     "width": 800,
@@ -16,6 +16,6 @@
     "min_height": 600
   },
   "dependencies": {
-    "opencv": "git://github.com/dasantonym/node-opencv.git"
+    "wdt-native": "^1.0.0"
   }
 }

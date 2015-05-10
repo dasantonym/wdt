@@ -7,7 +7,7 @@
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
 
-            var gstreamer = require("gstreamer-superficial");
+            //var gstreamer = require("gstreamer-superficial");
 
             var mode = "menu";
             var frames = [];
@@ -30,7 +30,7 @@
                         $scope.toGo = toGo;
                         setTimeout(countDown, 1000);
                     }
-                }
+                };
                 countDown();
             }
 
@@ -60,8 +60,19 @@
                 replay: { x: .3, y: .525, w: .1, h: .1 },
                 reverse: { x: .45, y: .525, w: .1, h: .1 },
                 slowmotion: { x: .6, y: .525, w: .1, h: .1 }
-            }
+            };
 
+            var cv = require('wdt-native');
+
+            var camDevice = 0;
+
+            var cam = new cv.VideoCapture(camDevice);
+            var motion = new cv.cvMotion();
+
+            cam.setWidth(width);
+            cam.setHeight(height);
+
+            /*
             var def = "v4l2src ! tee name=t0 "
                 + " t0. ! queue max-size-buffers=1 ! videoconvert ! motion weight=0.3";
 
@@ -80,9 +91,10 @@
 
             var pipeline = new gstreamer.Pipeline(def);
             var appsink = pipeline.findChild("sink");
+            */
 
-            for (name in triggers) {
-                triggers[name].trigger = pipeline.findChild(name);
+            for (var name in triggers) {
+                triggers[name].trigger = new cv.wTriggers();//pipeline.findChild(name);
             }
 
             var videoContainer = document.getElementById("video-container");
@@ -99,10 +111,7 @@
                 var ofsy = (wh - height) / 2;
                 videoContainer.style.left = "" + (ofsx) + "px";
                 videoContainer.style.top = "" + (ofsy) + "px";
-
-                OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
-                OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
-            }
+            };
             window.onresize();
 
             document.onkeydown = function (e) {
@@ -120,14 +129,14 @@
                         triggerSlowMotion();
                         break;
                     case 81: // Q
-                        pipeline.stop();
+                        //pipeline.stop();
                         window.location = "index.html";
                         break;
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }
                 $scope.$apply();
-            }
+            };
 
             appsink.pull(function (frame) {
                 var image = context.createImageData(width, height);

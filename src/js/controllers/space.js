@@ -84,7 +84,7 @@
 
             var snd = new Audio("./snd/Robot_blip_2-Marianne_Gagnon-299056732.wav");
 
-            var cv = require('opencv');
+            var cv = require('wdt-native');
 
             var camDevice = 0;
 
@@ -94,6 +94,7 @@
             var accumulate = new cv.wAccumulate();
             var multiplys = new cv.cvMultiplyS();
             var camshift = new cv.cvCamShift();
+            //var displayFormat = new cv.cvDisplayFormat();
 
             cam.setWidth(width);
             cam.setHeight(height);
@@ -188,8 +189,12 @@
                     var camshiftRes = camshift.process(mat);
                     accumulate.process(mat, 0.2, 0.8);
                     multiplys.process(mat, 0.6, 0);
+                    //displayFormat.process(mat);
+
 
                     var image = context.createImageData(mat.width(), mat.height());
+                    //image.data.set(mat.toBuffer());
+
                     var width = mat.width();
                     var height = mat.height();
                     for (var y = 0; y < height; y += 1) {
