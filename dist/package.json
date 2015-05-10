@@ -16,6 +16,6 @@
     "min_height": 600
   },
   "dependencies": {
-    "wdt-native": "^1.0.0"
+    "wdt-native": "^1.0.1"
   }
 }
