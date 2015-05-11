@@ -21,6 +21,7 @@ Run this from the repository root:
 ```
 npm install
 bower install
+gulp
 cd dist
 npm install
 ```
