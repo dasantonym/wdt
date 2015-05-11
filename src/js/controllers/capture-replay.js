@@ -1,3 +1,4 @@
+/* global console,angular,require,appsink,pipeline */
 (function () {
     'use strict';
     angular.module(
@@ -56,10 +57,10 @@
             var height = 240;
 
             var triggers = {
-                record: { x: .025, y: .525, w: .1, h: .1 },
-                replay: { x: .3, y: .525, w: .1, h: .1 },
-                reverse: { x: .45, y: .525, w: .1, h: .1 },
-                slowmotion: { x: .6, y: .525, w: .1, h: .1 }
+                record: { x: 0.025, y: 0.525, w: 0.1, h: 0.1 },
+                replay: { x: 0.3, y: 0.525, w: 0.1, h: 0.1 },
+                reverse: { x: 0.45, y: 0.525, w: 0.1, h: 0.1 },
+                slowmotion: { x: 0.6, y: 0.525, w: 0.1, h: 0.1 }
             };
 
             var cv = require('wdt-native');
@@ -94,7 +95,9 @@
             */
 
             for (var name in triggers) {
-                triggers[name].trigger = new cv.wTriggers();//pipeline.findChild(name);
+                if (typeof triggers[name] === 'object') {
+                    triggers[name].trigger = new cv.wTriggers();//pipeline.findChild(name);
+                }
             }
 
             var videoContainer = document.getElementById("video-container");
@@ -147,17 +150,19 @@
                         context.putImageData(image, 0, 0);
 
                         for (name in triggers) {
-                            var t = triggers[name];
+                            if (typeof triggers[name] === 'object') {
+                                var t = triggers[name];
 
-                            context.fillStyle = "rgba(255,0,0," + (t.trigger.get("value")) + ")";
-                            context.fillRect(t.x * width, t.y * height, t.w * width, t.h * height);
+                                context.fillStyle = "rgba(255,0,0," + (t.trigger.get("value")) + ")";
+                                context.fillRect(t.x * width, t.y * height, t.w * width, t.h * height);
 
-                            context.strokeStyle = "#f00";
-                            context.lineWidth = 1;
-                            context.strokeRect(t.x * width, t.y * height, t.w * width, t.h * height);
+                                context.strokeStyle = "#f00";
+                                context.lineWidth = 1;
+                                context.strokeRect(t.x * width, t.y * height, t.w * width, t.h * height);
 
-                            if (t.trigger.get("ping")) {
-                                console.log("PING " + name);
+                                if (t.trigger.get("ping")) {
+                                    console.log("PING " + name);
+                                }
                             }
                         }
                         break;
@@ -167,7 +172,9 @@
                     case "record":
                         context.putImageData(image, 0, 0);
                         frames.push(image);
-                        if (frames.length >= maxFrames) mode = "menu";
+                        if (frames.length >= maxFrames) {
+                            mode = "menu";
+                        }
                         $scope.toGo = (maxFrames - frames.length) / fps;
                         break;
                     case "replay":

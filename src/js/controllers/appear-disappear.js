@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module(
@@ -42,8 +43,8 @@
                 $scope.OSDOpacity = 1;
                 if (!fade) {
                     fade = setInterval(function () {
-                        $scope.OSDOpacity *= .9;
-                        if ($scope.OSDOpacity < .01) {
+                        $scope.OSDOpacity *= 0.9;
+                        if ($scope.OSDOpacity < 0.01) {
                             $scope.OSDOpacity = 0;
                             clearInterval(fade);
                             fade = undefined;

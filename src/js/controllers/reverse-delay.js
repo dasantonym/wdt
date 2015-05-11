@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module(
@@ -18,8 +19,12 @@
             $scope.changeBuffer = function (by) {
                 var d = maxFrames / fps;
                 d += by;
-                if (d < 1) d = 1;
-                if (d > 10) d = 10;
+                if (d < 1) {
+                    d = 1;
+                }
+                if (d > 10) {
+                    d = 10;
+                }
                 maxFrames = d * fps;
                 frames = [];
                 switch ($scope.mode) {
@@ -35,9 +40,9 @@
                         break;
                 }
                 $scope.duration = d;
-            }
+            };
             $scope.switchMode = function () {
-                if ($scope.mode == "Delay") {
+                if ($scope.mode === "Delay") {
                     $scope.mode = "Reverse";
                     playSpeed = -1;
                     recordPosition = 0;
@@ -48,7 +53,7 @@
                     recordPosition = 0;
                     playPosition = 1;
                 }
-            }
+            };
 
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
@@ -79,7 +84,7 @@
 
                 OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
                 OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
-            }
+            };
             window.onresize();
 
             document.onkeydown = function (e) {
@@ -104,7 +109,7 @@
                         console.log("unhandled key code " + e.keyCode);
                 }
                 $scope.$apply();
-            }
+            };
 
             function triangle(context) {
                 context.beginPath();
@@ -123,16 +128,19 @@
                 recordPosition = (recordPosition + 1) % maxFrames;
 
                 playPosition = (playPosition + playSpeed) % maxFrames;
-                while (playPosition < 0) playPosition = maxFrames - 1;
+                while (playPosition < 0) {
+                    playPosition = maxFrames - 1;
+                }
 
                 $scope.frames = frames.length;
                 $scope.playPosition = playPosition;
                 $scope.recordPosition = recordPosition;
 
-                if (frames.length > playPosition)
+                if (frames.length > playPosition) {
                     context.putImageData(frames[playPosition], 0, 0);
-                else
+                } else {
                     context.clearRect(0, 0, width, height);
+                }
 
                 var x = 150;
                 var y = 10;

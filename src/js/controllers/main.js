@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module(
@@ -17,10 +18,12 @@
             $scope.toolRows = [];
             var row = [];
             for (var i in $scope.tools) {
-                row.push($scope.tools[i]);
-                if (row.length == 3) {
-                    $scope.toolRows.push(row);
-                    row = [];
+                if ($scope.tools[i]) {
+                    row.push($scope.tools[i]);
+                    if (row.length === 3) {
+                        $scope.toolRows.push(row);
+                        row = [];
+                    }
                 }
             }
             $scope.toolRows.push(row);
@@ -28,7 +31,7 @@
             $scope.externalClick = function (url) {
                 var gui = require('nw.gui');
                 gui.Shell.openExternal(url);
-            }
+            };
 
             document.onkeydown = function (e) {
                 var nr = e.keyCode - 49;
@@ -40,6 +43,7 @@
                 switch (e.keyCode) {
                     case 81: // Q
                         //global.window.nwDispatcher.requireNwGui().App.quit();
+                        break;
                     default:
                         console.log("unhandled key code " + e.keyCode);
                 }

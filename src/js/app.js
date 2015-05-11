@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module('app', [

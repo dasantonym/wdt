@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module(
@@ -33,7 +34,7 @@
 
                 OSD.style.left = "" + ((ww - (width * scale)) / 2) + "px";
                 OSD.style.top = "" + ((wh - (height * scale)) / 2) + "px";
-            }
+            };
             window.onresize();
 
             document.onkeydown = function (e) {
@@ -46,7 +47,7 @@
                         console.log("unhandled key code " + e.keyCode);
                 }
                 $scope.$apply();
-            }
+            };
 
             appsink.pull(function (frame) {
                 var image = context.createImageData(width, height);

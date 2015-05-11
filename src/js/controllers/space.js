@@ -1,3 +1,4 @@
+/* global console,angular,require */
 (function () {
     'use strict';
     angular.module(
@@ -12,22 +13,22 @@
                     break;
                 case "cage":
                     $scope.exercises = [
-                        { type: "Cage", left: .2, top: .2, right: .8, bottom: 1.1 },
-                        { type: "Cage", left: .35, top: .15, right: .6, bottom: 1.1 },
+                        { type: "Cage", left: 0.2, top: 0.2, right: 0.8, bottom: 1.1 },
+                        { type: "Cage", left: 0.35, top: 0.15, right: 0.6, bottom: 1.1 }
                     ];
                     break;
                 default:
                     $scope.exercises = [
-                        { type: "StandAtAngle", angle: 45. },
-                        { type: "StandAtAngle", angle: 0. },
-                        { type: "StandAtAngle", angle: 180. },
-                        { type: "StandAtAngle", angle: 316. },
-                        { type: "MoveTo", x: .8, y: .7 },
-                        { type: "StandAtAngle", angle: 95. },
-                        { type: "MoveTo", x: .1, y: .75 },
-                        { type: "StandAtAngle", angle: 212. },
-                        { type: "StandAtAngle", angle: 114. },
-                        { type: "MoveTo", x: .9, y: .23 },
+                        { type: "StandAtAngle", angle: 45.0 },
+                        { type: "StandAtAngle", angle: 0.0 },
+                        { type: "StandAtAngle", angle: 180.0 },
+                        { type: "StandAtAngle", angle: 316.0 },
+                        { type: "MoveTo", x: 0.8, y: 0.7 },
+                        { type: "StandAtAngle", angle: 95.0 },
+                        { type: "MoveTo", x: 0.1, y: 0.75 },
+                        { type: "StandAtAngle", angle: 212.0 },
+                        { type: "StandAtAngle", angle: 114.0 },
+                        { type: "MoveTo", x: 0.9, y: 0.23 }
                     ];
                     break;
             }
@@ -41,14 +42,16 @@
             };
             $scope.previousExercise = function () {
                 $scope.exerciseIndex = ($scope.exerciseIndex - 1) % $scope.exercises.length;
-                if ($scope.exerciseIndex < 0) $scope.exerciseIndex = $scope.exercises.length - 1;
+                if ($scope.exerciseIndex < 0) {
+                    $scope.exerciseIndex = $scope.exercises.length - 1;
+                }
                 $scope.exercise = $scope.exercises[$scope.exerciseIndex];
             };
 
             $scope.exerciseDone = function () {
                 snd.play();
                 $scope.nextExercise();
-            }
+            };
 
             $scope.OSDOpacity = 0;
             var fade;
@@ -56,8 +59,8 @@
                 $scope.OSDOpacity = 1;
                 if (!fade) {
                     fade = setInterval(function () {
-                        $scope.OSDOpacity *= .9;
-                        if ($scope.OSDOpacity < .01) {
+                        $scope.OSDOpacity *= 0.9;
+                        if ($scope.OSDOpacity < 0.01) {
                             $scope.OSDOpacity = 0;
                             clearInterval(fade);
                             fade = undefined;
@@ -65,7 +68,7 @@
                         $scope.$apply();
                     }, 66);
                 }
-            }
+            };
 
             function deg2rad(v) {
                 return ((v / 180) * -Math.PI);
@@ -80,7 +83,7 @@
             var height = 240;
 
             $scope.inert = { x: width / 2, y: height / 2 };
-            $scope.vel = { x: 0., y: 0. };
+            $scope.vel = { x: 0.0, y: 0.0 };
 
             var snd = new Audio("./snd/Robot_blip_2-Marianne_Gagnon-299056732.wav");
 
@@ -242,8 +245,8 @@
                     context.strokeRect(extr.left, extr.top, extr.right - extr.left, extr.bottom - extr.top);
 
                     // inert centroid
-                    var acc = .05; // TODO: make configurable
-                    var brake = 1. - acc;
+                    var acc = 0.05; // TODO: make configurable
+                    var brake = 1.0 - acc;
                     var inert = $scope.inert;
                     var vel = $scope.vel;
                     var d = { x: c.x - inert.x, y: c.y - inert.y };
@@ -272,7 +275,9 @@
                             context.fillRect(-width / 2, -2, width, 4);
                             var delta = Math.abs(angle - c.angle);
                             $scope.delta = delta;
-                            if (delta < Math.abs(deg2rad(3))) $scope.exerciseDone();
+                            if (delta < Math.abs(deg2rad(3))) {
+                                $scope.exerciseDone();
+                            }
                             break;
 
                         case "MoveTo":
@@ -284,7 +289,9 @@
                             var d = { x: x - c.x, y: y - c.y };
                             var delta = Math.sqrt((d.x * d.x) + (d.y * d.y));
                             $scope.delta = delta;
-                            if (delta < 10) $scope.exerciseDone();
+                            if (delta < 10) {
+                                $scope.exerciseDone();
+                            }
                             break;
 
                         case "Cage":
