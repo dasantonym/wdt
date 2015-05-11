@@ -16,6 +16,11 @@
     "min_height": 600
   },
   "dependencies": {
-    "wdt-native": "^1.0.1"
+    "wdt-native": "^1.0.2"
+  },
+  "cmake-js": {
+    "runtime": "nw",
+    "runtimeVersion": "0.12.1",
+    "arch": "x64"
   }
 }
