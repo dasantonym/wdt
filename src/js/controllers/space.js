@@ -238,6 +238,8 @@
                     context.rotate(c.angle);
                     context.fillRect(-(c.width / 2), -5, c.width, 10);
                     context.fillRect(-5, -(c.height / 2), 10, c.height);
+                    context.fillStyle = "#ff0";
+                    context.fillRect(-5, c.height / 2 - 10, 10, 10);
                     context.restore();
 
                     context.strokeStyle = "#f00";
